@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">VK EDUCATION</string>
+    <string name="app_name">Текст и звонки</string>
+    <string name="main_title">Текст и звонки</string>
+    <string name="main_description">Введите текст, чтобы открыть его на другом экране или поделиться им. Для звонка введите номер телефона в это же поле.</string>
+    <string name="input_label">Текст или номер телефона</string>
+    <string name="input_hint">Например: Привет! или +7 999 123 45 67</string>
+    <string name="open_second">Открыть вторую Activity</string>
+    <string name="dial_friend">Позвонить другу</string>
+    <string name="share_text">Поделиться текстом</string>
+    <string name="dial_note">Кнопка звонка откроет набор номера. Сам звонок нужно подтвердить в приложении телефона.</string>
+    <string name="share_chooser_title">Поделиться через…</string>
+    <string name="second_title">Переданный текст</string>
+    <string name="second_description">Текст, который вы ввели на первом экране:</string>
+    <string name="back_to_main">Вернуться назад</string>
+    <string name="no_received_text">Текст не передан</string>
+    <string name="error_empty_text">Введите текст или номер телефона</string>
+    <string name="error_invalid_phone">Введите номер из 3–15 цифр. Допустимы + в начале, пробелы, скобки и дефисы.</string>
+    <string name="error_no_dialer">На устройстве нет приложения для набора номера</string>
+    <string name="error_no_share_app">На устройстве не удалось открыть меню «Поделиться»</string>
 </resources>

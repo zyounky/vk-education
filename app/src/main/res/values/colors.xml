@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="screen_background">#F5F7FA</color>
+    <color name="primary">#0077FF</color>
+    <color name="primary_pressed">#0066DB</color>
+    <color name="text_primary">#182233</color>
+    <color name="text_secondary">#596579</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_border">#D8E0EA</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
