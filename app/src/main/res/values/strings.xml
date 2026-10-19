@@ -2,6 +2,8 @@
     <string name="app_name">VK EDUCATION</string>
     <string name="catalog_title">Приложения</string>
     <string name="collection_title">На каждый день</string>
+    <string name="show_app_info">Показать информацию: %1$s</string>
+    <string name="app_selected">Вы выбрали %1$s</string>
     <plurals name="app_count">
         <item quantity="one">%d приложение в подборке</item>
         <item quantity="few">%d приложения в подборке</item>

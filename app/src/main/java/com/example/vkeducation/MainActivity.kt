@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.vkeducation.ui.AppListScreen
+import com.example.vkeducation.presentation.AppListRoute
 import com.example.vkeducation.ui.theme.VKEDUCATIONTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             VKEDUCATIONTheme {
-                AppListScreen()
+                AppListRoute()
             }
         }
     }
