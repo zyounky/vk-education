@@ -2,6 +2,7 @@ package com.example.vkeducation.ui
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -36,7 +39,11 @@ import com.example.vkeducation.ui.theme.VKEDUCATIONTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppListScreen(modifier: Modifier = Modifier, applications: List<AppInfo> = apps) {
+fun AppListScreen(
+    modifier: Modifier = Modifier,
+    applications: List<AppInfo> = apps,
+    onAppClick: () -> Unit = {},
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -61,7 +68,7 @@ fun AppListScreen(modifier: Modifier = Modifier, applications: List<AppInfo> = a
             contentAlignment = Alignment.TopCenter
         ) {
             LazyColumn(
-                modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth(),
+                modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth().testTag("apps_list"),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -84,7 +91,10 @@ fun AppListScreen(modifier: Modifier = Modifier, applications: List<AppInfo> = a
                     }
                 }
                 items(applications, key = { it.name }) { app ->
-                    AppItem(app = app)
+                    AppItem(
+                        app = app,
+                        modifier = Modifier.clickable(role = Role.Button, onClick = onAppClick),
+                    )
                 }
             }
         }

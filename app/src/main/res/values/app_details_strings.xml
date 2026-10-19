@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_details_age">Возраст</string>
+    <string name="app_details_size">Размер</string>
+    <string name="install">Установить</string>
+    <string name="app_details_screenshots">Скриншоты</string>
+    <string name="app_details_screenshot_number">Скриншот приложения %1$d</string>
+    <string name="app_details_description">Описание приложения</string>
+    <string name="app_details_read_more">Читать подробнее</string>
+    <string name="app_details_developer">Разработчик</string>
+    <string name="showcase_title">Витрина</string>
+    <string name="showcase_page_number">%1$d из %2$d</string>
+    <string name="back_to_apps">К списку приложений</string>
+    <string name="share_app">Поделиться приложением</string>
+    <string name="sample_card_action">Это демонстрационная карточка приложения</string>
+</resources>
