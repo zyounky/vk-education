@@ -1,7 +1,8 @@
 package com.example.vkeducation.presentation
 
-import com.example.vkeducation.data.AppsRepository
-import com.example.vkeducation.model.AppInfo
+import com.example.vkeducation.domain.repository.AppsRepository
+import com.example.vkeducation.domain.model.AppIcon
+import com.example.vkeducation.domain.model.AppInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -20,7 +21,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppListViewModelTest {
     private val dispatcher = StandardTestDispatcher()
-    private val sampleApp = AppInfo(0, "Telegram", "Messenger", "Communication")
+    private val sampleApp = AppInfo(AppIcon.TELEGRAM, "Telegram", "Messenger", "Communication")
 
     @Before
     fun setUp() {

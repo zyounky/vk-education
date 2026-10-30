@@ -1,4 +1,4 @@
-package com.example.vkeducation.ui.components
+package com.example.vkeducation.presentation.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.vkeducation.model.AppInfo
+import com.example.vkeducation.domain.model.AppInfo
+import com.example.vkeducation.presentation.ui.toDrawableRes
 import com.example.vkeducation.R
 
 @Composable
@@ -38,7 +39,7 @@ fun AppItem(app: AppInfo, modifier: Modifier = Modifier, onLogoClick: () -> Unit
         ) {
             IconButton(onClick = onLogoClick, modifier = Modifier.size(56.dp)) {
                 Image(
-                    painter = painterResource(app.iconRes),
+                    painter = painterResource(app.icon.toDrawableRes()),
                     contentDescription = stringResource(R.string.show_app_info, app.name),
                     modifier = Modifier.size(56.dp)
                 )

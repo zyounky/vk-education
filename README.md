@@ -1,62 +1,76 @@
-# VK Education: практическое задание 5
+# VK Education: практическое задание 6
 
-Список приложений из задания 4 переведён на Jetpack ViewModel. При нажатии на логотип приложения появляется Snackbar с названием выбранного приложения.
+Каталог Android-приложений разделён на слои `data`, `domain` и `presentation` по принципам Clean Architecture. Решение продолжает задание 5 с ViewModel и одноразовыми Snackbar.
 
-## Условие
+## Требования задания
 
-[Урок «Архитектура Android-приложений: паттерны presentation слоя»](https://education.vk.company/curriculum/program/lesson/38881/).
+- Выделить слои Data, Domain и Presentation.
+- Разместить в Presentation интерфейс и ViewModel.
+- Перенести исходные данные в Data.
+- Возвращать данные через Repository.
+- Хранить исходные записи в DTO и преобразовывать их через Mapper в доменную модель.
+- Создать ветку решения и Pull Request в основную ветку репозитория.
 
-Источник: презентация «Семинар 3. Архитектура Android-приложений: паттерны presentation слоя», страницы 106–107:
+## Структура
 
-- Внедрить Jetpack ViewModel в список приложений.
-- Добавить отображение snack при клике на логотип.
-- При повороте экрана контент остаётся и не вызывается повторно.
-- Snackbar не показывается повторно.
+```text
+com.example.vkeducation/
+├── MainActivity.kt                         # создание зависимостей приложения
+├── domain/
+│   ├── model/AppInfo.kt                    # AppInfo и AppIcon, чистый Kotlin
+│   └── repository/AppsRepository.kt        # контракт получения каталога
+├── data/
+│   ├── AppDto.kt                           # формат исходной записи
+│   ├── HardcodedAppsDataSource.kt          # восемь локальных DTO
+│   ├── AppMapper.kt                        # DTO → AppInfo
+│   └── LocalAppsRepository.kt              # реализация доменного контракта
+└── presentation/
+    ├── AppListViewModel.kt                 # StateFlow, события, фабрика
+    ├── AppListRoute.kt                     # подписки с учётом Lifecycle
+    └── ui/
+        ├── AppListScreen.kt                # Compose-экран
+        ├── AppIconResources.kt             # AppIcon → R.drawable
+        ├── components/AppItem.kt           # карточка приложения
+        └── theme/                          # тема Compose
+```
 
-На странице 101 также рекомендованы Channel для событий и компоненты с учётом жизненного цикла. Пример преподавателя: [maltsevmicyou/VkEducation](https://github.com/maltsevmicyou/VkEducation).
+Во время загрузки `LocalAppsRepository` получает DTO из `HardcodedAppsDataSource`, преобразует каждую запись через `AppMapper` и возвращает `List<AppInfo>`. ViewModel публикует этот список в состоянии экрана.
 
-## Реализация
+Presentation и Data зависят от контракта Domain. Domain содержит обычные Kotlin-типы: Android-ресурсы выбираются в Presentation через `AppIconResources`. Неизвестная иконка из DTO получает значение `GENERIC`, а текстовые поля сохраняются.
 
-- `data/AppsRepository.kt`: локальный источник данных, заменяемый в тестах.
-- `presentation/AppListViewModel.kt`: один вызов источника при создании ViewModel; неизменяемый AppListUiState доступен через StateFlow.
-- `presentation/AppListRoute.kt`: ViewModel привязана к Activity и сохраняется при изменении конфигурации. collectAsStateWithLifecycle обновляет экран, а repeatOnLifecycle(STARTED) собирает события только у активного экрана.
-- Channel передаёт каждый запрос Snackbar одному получателю. Уже полученное событие не повторяется при создании нового экрана. Snackbar хранится в UI, поэтому сообщение, которое было видно перед поворотом, закрывается и не появляется заново.
-- `ui/AppListScreen.kt` и `ui/components/AppItem.kt`: отображение состояния и передача нажатий в ViewModel. Логотипы имеют подписи для TalkBack и область нажатия 56 dp.
+`MainActivity` связывает `LocalAppsRepository` с `AppListViewModel.factory(...)`. ViewModel получает Repository через конструктор. Compose-экран получает готовую ViewModel, связанную с Activity.
 
-Данные локальные, интернет не нужен. ViewModel переживает поворот, но не завершение процесса Android: после нового запуска локальный список загружается заново. Часть 2 задания 4 с переходами на карточку и витрину находится в отдельной ветке и в это задание не входит.
+## Поведение приложения
+
+Сохранены восемь приложений исходного каталога, порядок, тексты и изображения. Нажатие на логотип показывает Snackbar с названием приложения. ViewModel загружает каталог один раз за свой срок жизни. При пересоздании Activity экземпляр ViewModel и состояние сохраняются, а обработанный Snackbar не повторяется.
+
+Источник данных локальный, доступ в интернет не нужен. После завершения процесса Android новый экземпляр ViewModel снова загружает локальный каталог.
 
 ## Сборка и проверки
 
-Нужны Android SDK Platform 37, Android 8.0 / API 26 или новее и JDK 21 для запуска wrapper. Gradle 9.6.0 автоматически использует Java 25 согласно исходному `gradle/gradle-daemon-jvm.properties`.
+Требуются Android SDK Platform 37, Android 8.0 / API 26 или новее и JDK 25 для Gradle 9.6.0, указанные в исходной конфигурации проекта. Путь Android SDK задаётся через `ANDROID_HOME` или локальный `local.properties`.
 
 ```powershell
-.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug --console=plain
+.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleDebugAndroidTest --console=plain
 .\gradlew.bat :app:connectedDebugAndroidTest --console=plain
 ```
 
-Вторая команда требует подключённого Android-устройства или запущенного эмулятора. На macOS/Linux используйте `./gradlew`.
+Для второй команды нужен запущенный эмулятор или подключённое устройство. На macOS/Linux используйте `./gradlew`.
 
-Unit-тесты проверяют, что повторная подписка на состояние не загружает данные заново, обработанный Snackbar не повторяется у нового подписчика и событие, ожидающее активный экран, доставляется один раз. UI-тест пересоздаёт Activity, проверяет сохранение экземпляра ViewModel и состояния, отсутствие старого Snackbar и работу нового нажатия.
+Проверки этой версии:
 
-Ручная проверка:
+- Debug APK и APK инструментальных тестов собираются успешно.
+- 10 unit-тестов проходят: преобразование DTO, неизвестные иконки, инъекция источника и Mapper, порядок данных, исходный каталог и поведение ViewModel.
+- Android Lint проходит без ошибок; отчёт содержит 16 предупреждений.
+- Инструментальные тесты проходят на эмуляторе Android 17 / API 37, включая пересоздание Activity и отсутствие повторного Snackbar.
 
-1. Откройте список, нажмите на логотип Telegram и убедитесь, что появилось «Вы выбрали Telegram».
-2. Пока сообщение видно, поверните устройство. Список должен остаться, а сообщение не должно повториться.
-3. Нажмите на логотип снова: новое сообщение должно появиться.
-4. Прокрутите список, поверните устройство обратно и проверьте сохранение позиции и отсутствие самопроизвольных сообщений.
+Ручная проверка: запустите каталог, нажмите на логотип Telegram, поверните устройство во время показа сообщения, затем нажмите на логотип ещё раз. Список сохраняется, старое сообщение закрывается, новое нажатие показывает новый Snackbar.
 
-Debug APK: `app/build/outputs/apk/debug/app-debug.apk`. Отчёты: `app/build/reports/tests/testDebugUnitTest/`, `app/build/reports/androidTests/connected/`, `app/build/reports/lint-results-debug.html`.
+## Файлы результата
 
-Ветка решения: `homework/05-viewmodel-state`, основана на `homework/04-compose-app-list`. В поле сдачи задания указывается ссылка на репозиторий с этой веткой.
+- Debug APK: `app/build/outputs/apk/debug/app-debug.apk`.
+- Unit-отчёт: `app/build/reports/tests/testDebugUnitTest/index.html`.
+- Отчёт UI-тестов: `app/build/reports/androidTests/connected/debug/index.html`.
+- Lint: `app/build/reports/lint-results-debug.html`.
 
-## Результат проверки
-
-- Сборка debug APK и test APK: успешно.
-- Unit-тесты: 3 проверки ViewModel и базовый тест проекта, без ошибок.
-- Android Lint: без ошибок; сохранены исходные предупреждения о неиспользуемых ресурсах и доступных обновлениях библиотек.
-- Инструментальные тесты на Android 17 / API 37: 2 теста, без ошибок, включая пересоздание Activity и отсутствие повторного Snackbar.
-- Отдельно проверен поворот эмулятора из портрета в альбомную ориентацию во время показа сообщения: список сохранился, старое сообщение не появилось снова.
-
-| Нажатие на логотип | После поворота |
-| --- | --- |
-| ![Snackbar в портретной ориентации](docs/screenshots/snackbar-portrait.png) | ![Список после поворота без повторного Snackbar](docs/screenshots/after-rotation.png) |
+Ветка: `homework/06-clean-architecture`, основана на `homework/05-viewmodel-state`. Для сдачи нужны ссылка на эту ветку репозитория и ссылка на Pull Request в `main`.
