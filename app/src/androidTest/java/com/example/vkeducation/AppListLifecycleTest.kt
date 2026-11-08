@@ -19,14 +19,20 @@ class AppListLifecycleTest {
     @Test
     fun recreationRetainsContentButDoesNotReplaySnackbar() {
         lateinit var originalViewModel: AppListViewModel
-        lateinit var originalState: AppListUiState
         composeRule.activityRule.scenario.onActivity { activity ->
             originalViewModel = ViewModelProvider(activity)[AppListViewModel::class.java]
-            originalState = originalViewModel.uiState.value
         }
 
-        composeRule.onNodeWithContentDescription("Показать информацию: Telegram").performClick()
-        composeRule.onNodeWithText("Вы выбрали Telegram").assertIsDisplayed()
+        composeRule.waitUntil(timeoutMillis = 20_000) {
+            originalViewModel.uiState.value is AppListUiState.Loaded
+        }
+        val originalState = originalViewModel.uiState.value as AppListUiState.Loaded
+        val firstAppName = originalState.applications.first().name
+        val logoLabel = composeRule.activity.getString(R.string.show_app_info, firstAppName)
+        val selectedMessage = composeRule.activity.getString(R.string.app_selected, firstAppName)
+
+        composeRule.onNodeWithContentDescription(logoLabel).performClick()
+        composeRule.onNodeWithText(selectedMessage).assertIsDisplayed()
 
         composeRule.activityRule.scenario.recreate()
         composeRule.waitForIdle()
@@ -36,10 +42,10 @@ class AppListLifecycleTest {
             assertSame(originalViewModel, retainedViewModel)
             assertSame(originalState, retainedViewModel.uiState.value)
         }
-        composeRule.onNodeWithText("Telegram").assertIsDisplayed()
-        composeRule.onNodeWithText("Вы выбрали Telegram").assertDoesNotExist()
+        composeRule.onNodeWithText(firstAppName).assertIsDisplayed()
+        composeRule.onNodeWithText(selectedMessage).assertDoesNotExist()
 
-        composeRule.onNodeWithContentDescription("Показать информацию: Telegram").performClick()
-        composeRule.onNodeWithText("Вы выбрали Telegram").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(logoLabel).performClick()
+        composeRule.onNodeWithText(selectedMessage).assertIsDisplayed()
     }
 }

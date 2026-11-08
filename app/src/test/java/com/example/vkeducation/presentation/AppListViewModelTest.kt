@@ -1,8 +1,8 @@
 package com.example.vkeducation.presentation
 
-import com.example.vkeducation.domain.repository.AppsRepository
-import com.example.vkeducation.domain.model.AppIcon
 import com.example.vkeducation.domain.model.AppInfo
+import com.example.vkeducation.domain.repository.AppsRepository
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -21,7 +21,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppListViewModelTest {
     private val dispatcher = StandardTestDispatcher()
-    private val sampleApp = AppInfo(AppIcon.TELEGRAM, "Telegram", "Messenger", "Communication")
+    private val sampleApp = AppInfo("telegram", "Telegram", "Messenger", "Communication")
 
     @Before
     fun setUp() {
@@ -41,12 +41,35 @@ class AppListViewModelTest {
             listOf(sampleApp)
         })
 
+        testScheduler.runCurrent()
         val firstScreenState = viewModel.uiState.first()
         val recreatedScreenState = viewModel.uiState.first()
 
-        assertEquals(listOf(sampleApp), firstScreenState.applications)
+        assertEquals(AppListUiState.Loaded(listOf(sampleApp)), firstScreenState)
         assertSame(firstScreenState, recreatedScreenState)
         assertEquals(1, loads)
+    }
+
+    @Test
+    fun failedLoadCanBeRetriedWithoutStartingDuplicateRequests() = runTest(dispatcher) {
+        var loads = 0
+        val viewModel = AppListViewModel(AppsRepository {
+            loads++
+            if (loads == 1) throw IOException("Offline")
+            listOf(sampleApp)
+        })
+
+        assertEquals(AppListUiState.Loading, viewModel.uiState.value)
+        testScheduler.runCurrent()
+        assertEquals(AppListUiState.Error, viewModel.uiState.value)
+
+        viewModel.retry()
+        viewModel.retry()
+        assertEquals(AppListUiState.Loading, viewModel.uiState.value)
+        testScheduler.runCurrent()
+
+        assertEquals(AppListUiState.Loaded(listOf(sampleApp)), viewModel.uiState.value)
+        assertEquals(2, loads)
     }
 
     @Test

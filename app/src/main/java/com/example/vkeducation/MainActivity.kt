@@ -6,7 +6,8 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import com.example.vkeducation.data.LocalAppsRepository
+import com.example.vkeducation.data.AppsNetwork
+import com.example.vkeducation.data.RemoteAppsRepository
 import com.example.vkeducation.presentation.AppListRoute
 import com.example.vkeducation.presentation.AppListViewModel
 import com.example.vkeducation.presentation.ui.theme.VKEDUCATIONTheme
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
         // receives only the Domain repository contract through its ViewModel.
         val viewModel = ViewModelProvider(
             this,
-            AppListViewModel.factory(LocalAppsRepository())
+            AppListViewModel.factory(RemoteAppsRepository(AppsNetwork.api))
         )[AppListViewModel::class.java]
         setContent {
             VKEDUCATIONTheme {

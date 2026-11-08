@@ -38,8 +38,9 @@ fun AppListRoute(
 
     AppListScreen(
         modifier = modifier,
-        applications = state.applications,
+        state = state,
         snackbarHostState = snackbarHostState,
-        onAppLogoClick = viewModel::onAppLogoClicked
+        onAppLogoClick = viewModel::onAppLogoClicked,
+        onRetry = viewModel::retry
     )
 }

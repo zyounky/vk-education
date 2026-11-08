@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,11 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.vkeducation.R
-import com.example.vkeducation.domain.model.AppIcon
 import com.example.vkeducation.domain.model.AppInfo
+import com.example.vkeducation.presentation.AppListUiState
 import com.example.vkeducation.presentation.ui.components.AppItem
 import com.example.vkeducation.presentation.ui.theme.VKEDUCATIONTheme
 
@@ -41,9 +44,10 @@ import com.example.vkeducation.presentation.ui.theme.VKEDUCATIONTheme
 @Composable
 fun AppListScreen(
     modifier: Modifier = Modifier,
-    applications: List<AppInfo>,
+    state: AppListUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onAppLogoClick: (AppInfo) -> Unit = {}
+    onAppLogoClick: (AppInfo) -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -67,35 +71,66 @@ fun AppListScreen(
     ) { innerPadding ->
         Box(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.Center
         ) {
-            LazyColumn(
-                modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item(key = "heading") {
+            when (state) {
+                AppListUiState.Loading -> CircularProgressIndicator()
+                AppListUiState.Error -> {
                     Column(
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.collection_title),
-                            style = MaterialTheme.typography.headlineSmall
+                            text = stringResource(R.string.catalog_load_error),
+                            textAlign = TextAlign.Center
                         )
-                        Text(
-                            text = pluralStringResource(
-                                R.plurals.app_count, applications.size, applications.size
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Button(onClick = onRetry) {
+                            Text(stringResource(R.string.catalog_retry))
+                        }
                     }
                 }
-                items(applications, key = { it.name }) { app ->
-                    AppItem(app = app, onLogoClick = { onAppLogoClick(app) })
-                }
+                is AppListUiState.Loaded -> AppCatalog(
+                    applications = state.applications,
+                    onAppLogoClick = onAppLogoClick,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun AppCatalog(
+    applications: List<AppInfo>,
+    onAppLogoClick: (AppInfo) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier.widthIn(max = 720.dp).fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item(key = "heading") {
+            Column(
+                modifier = Modifier.padding(bottom = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.collection_title),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(
+                    text = pluralStringResource(
+                        R.plurals.app_count, applications.size, applications.size
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        items(applications, key = { it.id }) { app ->
+            AppItem(app = app, onLogoClick = { onAppLogoClick(app) })
         }
     }
 }
@@ -108,8 +143,15 @@ fun AppListScreen(
 private fun AppListPreview() {
     VKEDUCATIONTheme {
         AppListScreen(
-            applications = listOf(
-                AppInfo(AppIcon.GENERIC, "Preview app", "Sample description", "Sample category")
+            state = AppListUiState.Loaded(
+                listOf(
+                    AppInfo(
+                        id = "preview",
+                        name = "Preview app",
+                        description = "Sample description",
+                        category = "Sample category"
+                    )
+                )
             )
         )
     }

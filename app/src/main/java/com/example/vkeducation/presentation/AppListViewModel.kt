@@ -7,27 +7,53 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.vkeducation.domain.model.AppInfo
 import com.example.vkeducation.domain.repository.AppsRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-data class AppListUiState(val applications: List<AppInfo>)
+sealed interface AppListUiState {
+    data object Loading : AppListUiState
+    data class Loaded(val applications: List<AppInfo>) : AppListUiState
+    data object Error : AppListUiState
+}
 
 sealed interface AppListEvent {
     data class ShowAppInfo(val appName: String) : AppListEvent
 }
 
 class AppListViewModel(
-    repository: AppsRepository
+    private val repository: AppsRepository
 ) : ViewModel() {
-    // Local data is loaded once for this ViewModel, independently of UI collectors.
-    private val _uiState = MutableStateFlow(AppListUiState(repository.loadApps()))
+    private val _uiState = MutableStateFlow<AppListUiState>(AppListUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     private val eventChannel = Channel<AppListEvent>(Channel.BUFFERED)
     val events = eventChannel.receiveAsFlow()
+
+    init {
+        loadApps()
+    }
+
+    fun retry() {
+        if (_uiState.compareAndSet(AppListUiState.Error, AppListUiState.Loading)) {
+            loadApps()
+        }
+    }
+
+    private fun loadApps() {
+        viewModelScope.launch {
+            _uiState.value = try {
+                AppListUiState.Loaded(repository.loadApps())
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (_: Exception) {
+                AppListUiState.Error
+            }
+        }
+    }
 
     fun onAppLogoClicked(app: AppInfo) {
         viewModelScope.launch {

@@ -1,6 +1,5 @@
 package com.example.vkeducation.presentation.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,14 +14,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.vkeducation.domain.model.AppInfo
-import com.example.vkeducation.presentation.ui.toDrawableRes
+import coil3.compose.AsyncImage
 import com.example.vkeducation.R
+import com.example.vkeducation.domain.model.AppInfo
 
 @Composable
 fun AppItem(app: AppInfo, modifier: Modifier = Modifier, onLogoClick: () -> Unit = {}) {
@@ -38,10 +39,15 @@ fun AppItem(app: AppInfo, modifier: Modifier = Modifier, onLogoClick: () -> Unit
             verticalAlignment = Alignment.Top
         ) {
             IconButton(onClick = onLogoClick, modifier = Modifier.size(56.dp)) {
-                Image(
-                    painter = painterResource(app.icon.toDrawableRes()),
+                val fallback = painterResource(R.drawable.ic_catalog_app)
+                AsyncImage(
+                    model = app.iconUrl,
                     contentDescription = stringResource(R.string.show_app_info, app.name),
-                    modifier = Modifier.size(56.dp)
+                    placeholder = fallback,
+                    error = fallback,
+                    fallback = fallback,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
                 )
             }
             Column(
