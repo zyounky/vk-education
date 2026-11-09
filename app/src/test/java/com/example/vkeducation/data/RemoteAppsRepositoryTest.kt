@@ -40,7 +40,7 @@ class RemoteAppsRepositoryTest {
             """.trimIndent(),
             "[]"
         )
-        val repository = RemoteAppsRepository(api)
+        val repository = RemoteAppsRepository(api, AppMapper())
 
         assertEquals(
             listOf(

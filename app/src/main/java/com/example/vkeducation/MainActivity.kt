@@ -6,24 +6,19 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import com.example.vkeducation.data.AppsNetwork
-import com.example.vkeducation.data.RemoteAppsRepository
 import com.example.vkeducation.presentation.AppListRoute
 import com.example.vkeducation.presentation.AppListViewModel
 import com.example.vkeducation.presentation.ui.theme.VKEDUCATIONTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         )
-        // The composition root knows the concrete implementation. Presentation
-        // receives only the Domain repository contract through its ViewModel.
-        val viewModel = ViewModelProvider(
-            this,
-            AppListViewModel.factory(RemoteAppsRepository(AppsNetwork.api))
-        )[AppListViewModel::class.java]
+        val viewModel = ViewModelProvider(this)[AppListViewModel::class.java]
         setContent {
             VKEDUCATIONTheme {
                 AppListRoute(viewModel = viewModel)
