@@ -18,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -26,9 +25,16 @@ import com.example.vkeducation.R
 import com.example.vkeducation.domain.model.AppInfo
 
 @Composable
-fun AppItem(app: AppInfo, modifier: Modifier = Modifier, onLogoClick: () -> Unit = {}) {
+fun AppItem(
+    app: AppInfo,
+    rating: Float?,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    onLogoClick: () -> Unit
+) {
     Surface(
-        modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 1.dp
@@ -70,6 +76,12 @@ fun AppItem(app: AppInfo, modifier: Modifier = Modifier, onLogoClick: () -> Unit
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
+                if (rating != null) {
+                    Text(
+                        text = stringResource(R.string.app_rating, rating),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             }
         }
     }

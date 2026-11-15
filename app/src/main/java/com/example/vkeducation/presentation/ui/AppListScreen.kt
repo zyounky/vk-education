@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import com.example.vkeducation.R
 import com.example.vkeducation.domain.model.AppInfo
 import com.example.vkeducation.presentation.AppListUiState
+import com.example.vkeducation.presentation.RatingsStage
+import com.example.vkeducation.presentation.RatingsUiState
 import com.example.vkeducation.presentation.ui.components.AppItem
 import com.example.vkeducation.presentation.ui.theme.VKEDUCATIONTheme
 
@@ -46,7 +48,9 @@ fun AppListScreen(
     modifier: Modifier = Modifier,
     state: AppListUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onAppClick: (AppInfo) -> Unit = {},
     onAppLogoClick: (AppInfo) -> Unit = {},
+    onCompareRatings: () -> Unit = {},
     onRetry: () -> Unit = {}
 ) {
     Scaffold(
@@ -92,7 +96,10 @@ fun AppListScreen(
                 }
                 is AppListUiState.Loaded -> AppCatalog(
                     applications = state.applications,
+                    ratings = state.ratings,
+                    onAppClick = onAppClick,
                     onAppLogoClick = onAppLogoClick,
+                    onCompareRatings = onCompareRatings,
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
             }
@@ -103,7 +110,10 @@ fun AppListScreen(
 @Composable
 private fun AppCatalog(
     applications: List<AppInfo>,
+    ratings: RatingsUiState,
+    onAppClick: (AppInfo) -> Unit,
     onAppLogoClick: (AppInfo) -> Unit,
+    onCompareRatings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -127,11 +137,41 @@ private fun AppCatalog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (applications.isNotEmpty()) {
+                    RatingsComparison(ratings = ratings, onCompare = onCompareRatings)
+                }
             }
         }
         items(applications, key = { it.id }) { app ->
-            AppItem(app = app, onLogoClick = { onAppLogoClick(app) })
+            AppItem(
+                app = app,
+                rating = ratings.byAppId[app.id],
+                onClick = { onAppClick(app) },
+                onLogoClick = { onAppLogoClick(app) }
+            )
         }
+    }
+}
+
+@Composable
+private fun RatingsComparison(ratings: RatingsUiState, onCompare: () -> Unit) {
+    Button(onClick = onCompare, enabled = !ratings.isComparing) {
+        Text(stringResource(R.string.ratings_compare))
+    }
+    ratings.sequentialMillis?.let { millis ->
+        Text(stringResource(R.string.ratings_sequential_time, millis))
+    }
+    ratings.parallelMillis?.let { millis ->
+        Text(stringResource(R.string.ratings_parallel_time, millis))
+    }
+    when (ratings.stage) {
+        RatingsStage.Idle -> Unit
+        RatingsStage.Sequential -> Text(stringResource(R.string.ratings_sequential_loading))
+        RatingsStage.Parallel -> Text(stringResource(R.string.ratings_parallel_loading))
+        RatingsStage.Failed -> Text(
+            text = stringResource(R.string.ratings_load_error),
+            color = MaterialTheme.colorScheme.error
+        )
     }
 }
 
