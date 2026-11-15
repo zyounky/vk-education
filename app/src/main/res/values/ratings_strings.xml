@@ -1,0 +1,9 @@
+<resources>
+    <string name="ratings_compare">Сравнить время загрузки</string>
+    <string name="ratings_sequential_time">Последовательно: %1$d мс</string>
+    <string name="ratings_parallel_time">Параллельно: %1$d мс</string>
+    <string name="ratings_sequential_loading">Загружаем рейтинги последовательно…</string>
+    <string name="ratings_parallel_loading">Загружаем рейтинги параллельно…</string>
+    <string name="ratings_load_error">Не удалось загрузить рейтинги</string>
+    <string name="app_rating">Рейтинг: %1$.1f из 5</string>
+</resources>

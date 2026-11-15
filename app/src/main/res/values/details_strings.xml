@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_details_title">Карточка приложения</string>
+    <string name="app_details_back">Назад</string>
+    <string name="app_details_error">Не удалось загрузить карточку</string>
+    <string name="app_details_metadata">%1$s · %2$d+ · %3$.1f МБ</string>
+    <string name="app_details_description">Описание</string>
+    <string name="app_details_screenshots">Скриншоты</string>
+    <string name="app_details_screenshot">Скриншот %1$d</string>
+    <string name="app_details_install">Установить</string>
+    <string name="app_details_cancel_install">Отменить</string>
+    <string name="app_details_installed">Установлено</string>
+    <string name="app_details_install_progress">Установка: %1$d%%</string>
+</resources>
